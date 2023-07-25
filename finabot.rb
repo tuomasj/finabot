@@ -13,10 +13,12 @@ class Finabot
 
     def add(ticker_symbol)
       @tickers.add(ticker_symbol.strip.upcase)
+      persist
     end
 
     def remove(ticker_symbol)
       @tickers.delete(ticker_symbol.strip.upcase)
+      persist
     end
 
     def to_a
