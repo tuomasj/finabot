@@ -216,6 +216,8 @@ end
 
 # starts here
 
+finabot = Finabot.new
+
 Telegram::Bot::Client.run(ENV["API_TOKEN"]) do |bot|
   bot.listen do |message|
 
