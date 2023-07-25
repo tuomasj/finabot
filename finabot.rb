@@ -26,12 +26,12 @@ class Finabot
     end
 
     def persist
-      IO.write(filename, self.to_a.join(";"))
+      IO.write(self.class.filename, self.to_a.join(","))
     end
 
     def self.default_tickers
       if File.exist?(self.filename)
-        IO.read(self.filename).split(";").map(&:strip).map(&:upcase)
+        IO.read(self.filename).split(",").map(&:strip).map(&:upcase)
       else
         []
       end
@@ -163,7 +163,7 @@ class Finabot
     ].join(Utils.line_feed)
   end
 
-  def list(params)
+  def list(params = nil)
     [
       "Current tickers:",
       tickers.to_a.join(", ")
@@ -215,10 +215,6 @@ end
 
 
 # starts here
-
-puts "write /help on Telegram group to show the help text"
-
-finabot = Finabot.new
 
 Telegram::Bot::Client.run(ENV["API_TOKEN"]) do |bot|
   bot.listen do |message|
