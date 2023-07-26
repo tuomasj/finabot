@@ -55,9 +55,9 @@ class Finabot
       quotes.map do |symbol, data|
         {
           symbol: symbol,
-          latest_price: data["regularMarketPrice"]["raw"],
-          previous_close: data["regularMarketPreviousClose"]["raw"],
-          market_open: data["marketState"] == "REGULAR"
+          latest_price: data.fetch("regularMarketPrice", {}).fetch("raw", 0),
+          previous_close: data.fetch("regularMarketPreviousClose", {}).fetch("raw", 0),
+          market_open: data.fetch("marketState",nil) == "REGULAR"
         }
       end
     end
@@ -70,6 +70,7 @@ class Finabot
 
   module Utils
     def self.percentage(latest, previous)
+      return 0 if latest == 0 || previous == 0
       ((latest - previous) / previous) * 100
     end
 
