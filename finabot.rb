@@ -56,14 +56,15 @@ class Finabot
         {
           symbol: symbol,
           latest_price: data["regularMarketPrice"]["raw"],
-          previous_close: data["regularMarketPreviousClose"]["raw"]
+          previous_close: data["regularMarketPreviousClose"]["raw"],
+          market_open: data["marketState"] == "REGULAR"
         }
       end
     end
 
     def company_information(ticker)
       # grab only price and financial data
-      query.quotes(ticker, "price").values.first.merge(query.quotes(ticker, "financialData").values.first)
+      query.quotes(ticker, "price").values#.first.merge(query.quotes(ticker, "financialData").values.first)
     end
   end
 
@@ -184,9 +185,11 @@ class Finabot
     stocks = current_quotes
     msg = [
       stocks.map do |stock|
+                    ticker_symbol = stock.fetch(:market_open, false) == true ? stock[:symbol] : stock[:symbol].downcase
                     [
+                      sprintf("%-6.6s %7.2f %5.2f%%", ticker_symbol, stock[:latest_price], Utils.percentage(stock[:latest_price], stock[:previous_close])),
                       Utils.price_indicator(stock[:latest_price], stock[:previous_close]),
-                      sprintf("%-8.8s %8.2f (%5.2f%%)\n", stock[:symbol], stock[:latest_price], Utils.percentage(stock[:latest_price], stock[:previous_close])),
+                      "\n"
                     ].join(" ")
                   end,
     ].join
@@ -216,22 +219,45 @@ end
 
 # starts here
 
+trap("SIGINT") {
+  puts("SIGINT detected, finabot quitting.")
+  exit
+}
+
 finabot = Finabot.new
 
-Telegram::Bot::Client.run(ENV["API_TOKEN"]) do |bot|
-  bot.listen do |message|
+case ARGV.first
+when "--telegram"
+  Telegram::Bot::Client.run(ENV["API_TOKEN"]) do |bot|
+    bot.listen do |message|
 
-    case message
-    when Telegram::Bot::Types::Message
-      msg = finabot.process_command(message.text)
-      if msg != nil && msg.size > 0
-        bot.api.send_message(
-                            chat_id: message.chat.id,
-                            text: msg,
-                            parse_mode: "Markdown"
-                          )
+      case message
+      when Telegram::Bot::Types::Message
+        msg = finabot.process_command(message.text)
+        if msg != nil && msg.size > 0
+          bot.api.send_message(
+                              chat_id: message.chat.id,
+                              text: msg,
+                              parse_mode: "Markdown"
+                            )
+        end
       end
-    end
 
+    end
   end
+when "--cli"
+  puts "Finabot at yer servive!"
+  printf("> ")
+  while line = STDIN.gets.strip
+    if line == "/quit"
+      exit
+    else
+      puts finabot.process_command(line)
+      printf("> ")
+    end
+  end
+else
+  puts finabot.process_command(ARGV.first)
 end
+
+
