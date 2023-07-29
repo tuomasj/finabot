@@ -51,7 +51,7 @@ class Finabot
 
     def current_quotes(tickers)
       quotes = query.quotes(tickers, 'price')
-      return {symbol: "INVALID TICKER", latest_price: 0, previous_close: 0 } if quotes.nil?
+      return { symbol: "INVALID TICKER", latest_price: 0, previous_close: 0 } if quotes.nil?
       quotes.map do |symbol, data|
         {
           symbol: symbol,
@@ -62,9 +62,18 @@ class Finabot
       end
     end
 
+    def multiple_queries(ticker_symbol, modules = ["price"])
+      modules.map do |mod|
+        query.quotes(ticker_symbol, mod).values.first
+      end
+    end
+
     def company_information(ticker)
-      # grab only price and financial data
-      query.quotes(ticker, "price").values#.first.merge(query.quotes(ticker, "financialData").values.first)
+      yahoo_finance_modules = ["price", "financialData", "calendarEvents", "financialData", "defaultKeyStatistics"]
+      #  query.quotes(ticker, "price").values#.first.merge(query.quotes(ticker, "financialData").values.first)
+      # it makes a network request for each module, so with each module
+      # the command takes longer time to complete
+      multiple_queries(ticker, yahoo_finance_modules).inject(&:merge)
     end
   end
 
@@ -258,7 +267,8 @@ when "--cli"
     end
   end
 else
-  puts finabot.process_command(ARGV.first)
+  # read the whole ARGV and pass it as a parameter
+  puts finabot.process_command(ARGV.join(" "))
 end
 
 
