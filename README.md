@@ -4,12 +4,14 @@
 
 Finabot on Telegram (or command-line mode!) looks something like this when running command `/latest`. Finabot uses Yahoo Finance API so all ticker symbols must use the same format as Yahoo Finance uses. For example, in Nasdaq OMX Helsinki ticker symbols use `.HE` in the end, such as `WITTED.HE` or `KEMPOWR.HE`.
 
+If the market is open, ticker symbol is ALL-CAPS, otherwise it's all lowercase.
+
 ```
 msft    338.37  2.31% 🟢
 trow    126.79  8.27% 🟢
 vz       34.03 -1.43% 🔴
-witted    3.05  1.32% 🟢
-kempow   40.87 -0.10% 🔴
+WITTED    3.05  1.32% 🟢
+KEMPOW   40.87 -0.10% 🔴
 tsla    266.44  4.20% 🟢
 ```
 
