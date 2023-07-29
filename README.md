@@ -2,24 +2,21 @@
 
 ## Example Output
 
-Finabot on Telegram group looks something like this when running command `/latest`
+Finabot on Telegram (or command-line mode!) looks something like this when running command `/latest`. Finabot uses Yahoo Finance API so all ticker symbols must use the same format as Yahoo Finance uses. For example, in Nasdaq OMX Helsinki ticker symbols use `.HE` in the end, such as `WITTED.HE` or `KEMPOWR.HE`.
 
 ```
-/latest
-
-🟢 MSFT       350.92 ( 1.68%)
-🔴 TROW       119.58 (-0.92%)
-🟢 VZ          34.16 ( 0.53%)
-🟢 O           63.38 ( 0.02%)
-🔴 MO          45.48 (-0.25%)
-🟢 ABNB       149.92 ( 1.56%)
-🟢 SNOW       179.08 ( 2.45%)
-🔴 SHOP        65.34 (-1.25%)
+msft    338.37  2.31% 🟢
+trow    126.79  8.27% 🟢
+vz       34.03 -1.43% 🔴
+witted    3.05  1.32% 🟢
+kempow   40.87 -0.10% 🔴
+tsla    266.44  4.20% 🟢
 ```
 
 ## Current status
 
 - Please understand that this is just an experimental bot, run this at your own risk
+- It is completely under mercy of Yahoo Finance API
 - Works on just channel per bot (and fills my use case perfectly)
 - Code is just one big file
 - Class `Finabot` has just too many responsibilities
@@ -38,18 +35,20 @@ If you want to run this locally without connecting to Telegram, use `--cli` opti
     $ ruby finabot.rb --cli
 ```
 
-or running from command-line, but it does not look good to my eye.
+or running from command-line
 
 ```
     $ ruby finabot.rb /help
+    $ ruby finabot.rb /add WITTED.HE
     $ ruby finabot.rb /latest
+    $ ruby finabot.rb /info WITTED.HE
 ```
 
 Same commands work, so start with `/help`.
 
 ### Running as Telegram bot
 
-- Create the bot on Telegram (Telegram Bots)[https://core.telegram.org/bots]
+- Create the bot on Telegram [Telegram Bots](https://core.telegram.org/bots)
 - Grab the Telegram API token
 - Make the bot Inline so it replies on the group (like Irc bots back in the day)
 - Invite the bot to a channel
