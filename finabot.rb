@@ -59,6 +59,8 @@ class Finabot
           previous_close: data.fetch("regularMarketPreviousClose", {}).fetch("raw", 0),
           market_open: data.fetch("marketState",nil) == "REGULAR"
         }
+      end.sort do |a,b|
+        a.fetch(:symbol) <=> b.fetch(:symbol)
       end
     end
 
@@ -89,6 +91,14 @@ class Finabot
         "🟢"
       else
         "🔴"
+      end
+    end
+
+    def self.indicate_big_change(percentage, limit, indicator)
+      if percentage.abs >= limit
+        indicator
+      else
+        nil
       end
     end
 
@@ -196,11 +206,14 @@ class Finabot
     msg = [
       stocks.map do |stock|
                     ticker_symbol = stock.fetch(:market_open, false) == true ? stock[:symbol] : stock[:symbol].downcase
+                    percentage = Utils.percentage(stock[:latest_price], stock[:previous_close])
                     [
-                      sprintf("%-6.6s %7.2f %5.2f%%", ticker_symbol, stock[:latest_price], Utils.percentage(stock[:latest_price], stock[:previous_close])),
+                      sprintf("%-5.5s %7.2f %5.2f%%", ticker_symbol, stock[:latest_price], percentage),
+                      " ",
                       Utils.price_indicator(stock[:latest_price], stock[:previous_close]),
+                      Utils.indicate_big_change(percentage, 2.8, "🔔"),
                       "\n"
-                    ].join(" ")
+                    ].join("")
                   end,
     ].join
     [
